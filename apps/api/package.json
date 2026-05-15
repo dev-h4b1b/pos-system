@@ -17,8 +17,8 @@
   },
   "dependencies": {
     "@hono/zod-openapi": "^1.2.4",
-    "@scalar/hono-api-reference": "^0.9.24",
     "@pos-system/eslint-config": "workspace:^",
+    "@scalar/hono-api-reference": "^0.9.24",
     "drizzle-orm": "^0.44.7",
     "drizzle-zod": "^0.8.3",
     "hono": "^4.10.4",
