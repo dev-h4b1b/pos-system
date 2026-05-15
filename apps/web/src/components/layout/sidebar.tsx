@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { BarChart2, ChevronLeft, ChevronRight, LayoutGrid, LogOut, Package, Receipt, Store, X } from "lucide-react";
+import { BarChart2, ChevronLeft, ChevronRight, LayoutGrid, LogOut, Package, Receipt, Settings, Store, X } from "lucide-react";
 import { useAuth } from "../../context/auth-context";
 import type { Role } from "../../context/auth-context";
 import { cn } from "../../lib/utils";
@@ -9,6 +9,7 @@ const allNavItems = [
   { to: "/orders", icon: Receipt, label: "Orders", exact: false, roles: ["user", "admin"] as Role[] },
   { to: "/products", icon: Package, label: "Products", exact: false, roles: ["admin"] as Role[] },
   { to: "/reports", icon: BarChart2, label: "Reports", exact: false, roles: ["admin"] as Role[] },
+  { to: "/settings", icon: Settings, label: "Settings", exact: false, roles: ["admin"] as Role[] },
 ] as const;
 
 interface SidebarProps {
