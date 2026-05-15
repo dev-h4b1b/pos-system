@@ -197,9 +197,20 @@ interface ProductManageCardProps {
 
 function ProductManageCard({ product, onEdit, onDelete, onAddStock }: ProductManageCardProps) {
   const isRental = product.type === 'rental'
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  const handleDelete = () => {
+    if (confirmDelete) {
+      onDelete()
+    }
+    else {
+      setConfirmDelete(true)
+    }
+  }
+
   return (
     <div className={cn(
-      'group relative rounded-xl border bg-white shadow-sm p-4 space-y-3',
+      'relative rounded-xl border bg-white shadow-sm p-4 space-y-3',
       product.stock === 0 ? 'border-red-100 bg-red-50/20' : isRental ? 'border-violet-100' : 'border-slate-100',
     )}
     >
@@ -229,10 +240,32 @@ function ProductManageCard({ product, onEdit, onDelete, onAddStock }: ProductMan
           <Badge variant={isRental ? 'rental' : 'sale'}>{isRental ? 'Rental' : 'Sale'}</Badge>
           <Badge variant="category" category={product.category}>{product.category}</Badge>
         </div>
-        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button onClick={onAddStock} className="text-slate-300 hover:text-emerald-500 transition-colors" title="Add stock"><PackagePlus size={13} /></button>
-          <button onClick={onEdit} className="text-xs text-slate-400 hover:text-indigo-600 font-medium transition-colors">Edit</button>
-          <button onClick={onDelete} className="text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={13} /></button>
+        <div className="flex items-center gap-2">
+          {confirmDelete
+            ? (
+                <>
+                  <button
+                    onClick={handleDelete}
+                    className="flex items-center gap-1 rounded-md bg-red-500 px-2 py-1 text-xs font-semibold text-white hover:bg-red-600 transition-colors"
+                  >
+                    <Trash2 size={11} />
+                    Confirm
+                  </button>
+                  <button
+                    onClick={() => setConfirmDelete(false)}
+                    className="text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                </>
+              )
+            : (
+                <>
+                  <button onClick={onAddStock} className="text-slate-400 hover:text-emerald-500 transition-colors" title="Add stock"><PackagePlus size={15} /></button>
+                  <button onClick={onEdit} className="text-xs text-slate-400 hover:text-indigo-600 font-medium transition-colors">Edit</button>
+                  <button onClick={handleDelete} className="text-slate-400 hover:text-red-500 transition-colors"><Trash2 size={15} /></button>
+                </>
+              )}
         </div>
       </div>
     </div>
