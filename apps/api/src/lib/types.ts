@@ -1,4 +1,5 @@
 import type { OpenAPIHono, RouteConfig, RouteHandler } from "@hono/zod-openapi";
+import type { D1Database, Fetcher, R2Bucket } from "@cloudflare/workers-types";
 import type { PinoLogger } from "hono-pino";
 import type { BASE_PATH } from "./constants";
 
