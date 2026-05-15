@@ -1,0 +1,7 @@
+{
+  "name": "@pos-system/api-client",
+  "type": "module",
+  "version": "0.1.0",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": { "hono": "^4.10.4", "@pos-system/api": "workspace:^" }
+}

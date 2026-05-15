@@ -1,0 +1,14 @@
+{
+  "name": "pos-system",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm run -r --parallel --aggregate-output dev",
+    "build": "pnpm run -r build",
+    "test": "pnpm run -r --parallel test",
+    "lint": "pnpm run -r --parallel lint",
+    "typecheck": "pnpm run -r --parallel typecheck",
+    "deploy": "pnpm build && pnpm run -r deploy"
+  },
+  "packageManager": "pnpm@10.5.2"
+}
