@@ -4,6 +4,7 @@ import { products as initialProducts } from '../data/products'
 
 const STORAGE_KEY = 'pos_products_v2'
 const CATEGORIES_KEY = 'pos_categories'
+const DELETED_KEY = 'pos_deleted_products_v2'
 
 const DEFAULT_CATEGORIES = ['earphones', 'chargers', 'cables', 'accessories', 'laptops', 'webcams', 'displays', 'peripherals']
 
@@ -20,17 +21,38 @@ function saveCategories(cats: string[]) {
   catch { /* quota */ }
 }
 
+function loadDeletedIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(DELETED_KEY)
+    return raw ? new Set(JSON.parse(raw) as string[]) : new Set()
+  }
+  catch { return new Set() }
+}
+
+function saveDeletedId(id: string) {
+  try {
+    const ids = loadDeletedIds()
+    ids.add(id)
+    localStorage.setItem(DELETED_KEY, JSON.stringify([...ids]))
+  }
+  catch { /* quota */ }
+}
+
 function load(): Product[] {
   try {
+    const deletedIds = loadDeletedIds()
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw)
-      return initialProducts
+      return initialProducts.filter(p => !deletedIds.has(p.id))
     const saved = JSON.parse(raw) as Product[]
-    // Merge saved stock levels onto latest product list (preserves new products added to data file)
-    return initialProducts.map((p) => {
-      const found = saved.find(s => s.id === p.id)
-      return found ? { ...p, stock: found.stock } : p
-    }).concat(saved.filter(s => !initialProducts.find(p => p.id === s.id)))
+    // Merge saved stock levels onto latest product list, skipping deleted initial products
+    return initialProducts
+      .filter(p => !deletedIds.has(p.id))
+      .map((p) => {
+        const found = saved.find(s => s.id === p.id)
+        return found ? { ...p, stock: found.stock } : p
+      })
+      .concat(saved.filter(s => !initialProducts.find(p => p.id === s.id)))
   }
   catch { return initialProducts }
 }
@@ -97,6 +119,8 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
   }, [apply])
 
   const deleteProduct = useCallback((id: string) => {
+    if (initialProducts.some(p => p.id === id))
+      saveDeletedId(id)
     apply(prev => prev.filter(p => p.id !== id))
   }, [apply])
 
