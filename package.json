@@ -8,7 +8,10 @@
     "test": "pnpm run -r --parallel test",
     "lint": "pnpm run -r --parallel lint",
     "typecheck": "pnpm run -r --parallel typecheck",
-    "deploy": "pnpm build && npx wrangler deploy"
+    "deploy": "pnpm build && wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.54.0"
   },
   "packageManager": "pnpm@10.5.2"
 }
