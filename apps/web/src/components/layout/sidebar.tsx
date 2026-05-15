@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { BarChart2, ChevronLeft, ChevronRight, LayoutGrid, LogOut, Package, Receipt, Settings, Store, X } from "lucide-react";
 import { useAuth } from "../../context/auth-context";
 import type { Role } from "../../context/auth-context";
@@ -21,6 +21,7 @@ interface SidebarProps {
 
 function NavContent({ collapsed, onLinkClick }: { collapsed: boolean; onLinkClick?: () => void }) {
   const { user, logout } = useAuth();
+  const { location } = useRouterState();
   const role = user?.role ?? "user";
   const navItems = allNavItems.filter(item => item.roles.includes(role));
 
@@ -43,27 +44,30 @@ function NavContent({ collapsed, onLinkClick }: { collapsed: boolean; onLinkClic
 
       {/* Nav links */}
       <nav className="flex-1 p-2 space-y-0.5">
-        {navItems.map(({ to, icon: Icon, label, exact }) => (
-          <Link
-            key={to}
-            to={to}
-            activeOptions={{ exact }}
-            title={collapsed ? label : undefined}
-            onClick={onLinkClick}
-            className={({ isActive }: { isActive: boolean }) =>
-              cn(
+        {navItems.map(({ to, icon: Icon, label, exact }) => {
+          const isActive = exact
+            ? location.pathname === to
+            : location.pathname.startsWith(to);
+          return (
+            <Link
+              key={to}
+              to={to}
+              activeOptions={{ exact }}
+              title={collapsed ? label : undefined}
+              onClick={onLinkClick}
+              className={cn(
                 "flex items-center rounded-lg text-sm font-medium transition-colors",
                 collapsed ? "justify-center h-10 w-10 mx-auto" : "gap-3 px-3 py-2.5",
                 isActive
                   ? "bg-indigo-600 text-white"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
-              )
-            }
-          >
-            <Icon size={18} className="shrink-0" />
-            {!collapsed && label}
-          </Link>
-        ))}
+              )}
+            >
+              <Icon size={18} className="shrink-0" />
+              {!collapsed && label}
+            </Link>
+          );
+        })}
       </nav>
 
       {/* Footer */}
