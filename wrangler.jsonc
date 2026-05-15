@@ -1,7 +1,30 @@
 {
-  // Root-level wrangler config for Cloudflare Pages (frontend only).
-  // The API Worker config lives in apps/api/wrangler.jsonc.
+  "$schema": "node_modules/wrangler/config-schema.json",
   "name": "pos-system",
-  "pages_build_output_dir": "apps/web/dist",
-  "compatibility_date": "2025-01-01"
+  "account_id": "REPLACE_ACCOUNT_ID",
+  "main": "apps/api/src/app.ts",
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "routes": [{ "pattern": "REPLACE_DOMAIN", "custom_domain": true }],
+  "assets": { "directory": "apps/web/dist", "binding": "ASSETS" },
+  "vars": {
+    "APP_URL": "https://REPLACE_DOMAIN",
+    "LOG_LEVEL": "info",
+    "NODE_ENV": "production"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "pos-system-db",
+      "database_id": "REPLACE_DB_ID",
+      "migrations_dir": "apps/api/src/db/migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "STORAGE",
+      "bucket_name": "pos-system-storage"
+    }
+  ]
 }
