@@ -17,7 +17,7 @@
     {
       "binding": "DB",
       "database_name": "pos-system-db",
-      "database_id": "REPLACE_DB_ID",
+      "database_id": "fc0046a4-6d72-4e7d-a8a0-593d4d686a11",
       "migrations_dir": "apps/api/src/db/migrations"
     }
   ],
