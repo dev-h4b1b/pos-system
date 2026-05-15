@@ -1,0 +1,7 @@
+{
+  // Root-level wrangler config for Cloudflare Pages (frontend only).
+  // The API Worker config lives in apps/api/wrangler.jsonc.
+  "name": "pos-system",
+  "pages_build_output_dir": "apps/web/dist",
+  "compatibility_date": "2025-01-01"
+}
