@@ -49,7 +49,7 @@ function NavContent({ collapsed, onLinkClick }: { collapsed: boolean; onLinkClic
             activeOptions={{ exact }}
             title={collapsed ? label : undefined}
             onClick={onLinkClick}
-            className={({ isActive }) =>
+            className={({ isActive }: { isActive: boolean }) =>
               cn(
                 "flex items-center rounded-lg text-sm font-medium transition-colors",
                 collapsed ? "justify-center h-10 w-10 mx-auto" : "gap-3 px-3 py-2.5",
