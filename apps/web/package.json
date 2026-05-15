@@ -1,8 +1,8 @@
 {
   "name": "@pos-system/web",
-  "private": true,
-  "version": "0.1.0",
   "type": "module",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -11,9 +11,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@pos-system/api-client": "workspace:^",
     "@tanstack/react-query": "^5.90.18",
     "@tanstack/react-router": "^1.150.0",
-    "@pos-system/api-client": "workspace:^",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.562.0",
@@ -24,12 +24,12 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@pos-system/eslint-config": "workspace:^",
     "@tailwindcss/vite": "^4.1.17",
     "@tanstack/router-plugin": "^1.150.0",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
-    "@pos-system/eslint-config": "workspace:^",
     "eslint": "^9.39.1",
     "typescript": "~5.9.3",
     "vite": "^7.2.4"

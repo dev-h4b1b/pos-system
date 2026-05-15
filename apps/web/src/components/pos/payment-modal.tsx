@@ -1,103 +1,103 @@
-import { CalendarDays, Camera, CheckCircle, Printer, RotateCcw, X } from "lucide-react";
-import { useRef, useState } from "react";
-import { formatCurrency, formatDate } from "../../lib/format";
-import { printOrderReceipt } from "../../lib/receipt";
-import { cn } from "../../lib/utils";
-import { Button } from "../ui/button";
-import type { CartItem, RentalInfo, RentalSession } from "../../types";
+import type { CartItem, RentalInfo, RentalSession } from '../../types'
+import { CalendarDays, Camera, CheckCircle, Printer, RotateCcw, X } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { formatCurrency, formatDate } from '../../lib/format'
+import { printOrderReceipt } from '../../lib/receipt'
+import { cn } from '../../lib/utils'
+import { Button } from '../ui/button'
 
 interface PaymentModalProps {
-  total: number;
-  subtotal: number;
-  tax: number;
-  items: CartItem[];
-  hasRentals: boolean;
-  onComplete: (method: "cash" | "qr", cashTendered?: number, rentalInfo?: RentalInfo, receiptImage?: string) => number;
-  onClose: () => void;
+  total: number
+  subtotal: number
+  tax: number
+  items: CartItem[]
+  hasRentals: boolean
+  onComplete: (method: 'cash' | 'qr', cashTendered?: number, rentalInfo?: RentalInfo, receiptImage?: string) => number
+  onClose: () => void
 }
 
-type PaymentMethod = "cash" | "qr";
+type PaymentMethod = 'cash' | 'qr'
 
 async function compressImage(file: File): Promise<string> {
   return new Promise((resolve) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
+    const img = new Image()
+    const url = URL.createObjectURL(file)
     img.onload = () => {
-      URL.revokeObjectURL(url);
-      const MAX = 900;
-      let { width, height } = img;
+      URL.revokeObjectURL(url)
+      const MAX = 900
+      let { width, height } = img
       if (width > MAX || height > MAX) {
-        if (width > height) { height = Math.round((height * MAX) / width); width = MAX; }
-        else { width = Math.round((width * MAX) / height); height = MAX; }
+        if (width > height) { height = Math.round((height * MAX) / width); width = MAX }
+        else { width = Math.round((width * MAX) / height); height = MAX }
       }
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      canvas.getContext("2d")!.drawImage(img, 0, 0, width, height);
-      resolve(canvas.toDataURL("image/jpeg", 0.75));
-    };
-    img.src = url;
-  });
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      canvas.getContext('2d')!.drawImage(img, 0, 0, width, height)
+      resolve(canvas.toDataURL('image/jpeg', 0.75))
+    }
+    img.src = url
+  })
 }
 
-
 export function PaymentModal({ total, subtotal, tax, items, hasRentals, onComplete, onClose }: PaymentModalProps) {
-  const [method, setMethod] = useState<PaymentMethod>("cash");
-  const [cashInput, setCashInput] = useState("");
-  const [studentName, setStudentName] = useState("");
-  const [studentId, setStudentId] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [roomNo, setRoomNo] = useState("");
-  const [session, setSession] = useState<RentalSession | "">("");
-  const [receiptImage, setReceiptImage] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
-  const [completedOrderNum, setCompletedOrderNum] = useState(0);
+  const [method, setMethod] = useState<PaymentMethod>('cash')
+  const [cashInput, setCashInput] = useState('')
+  const [studentName, setStudentName] = useState('')
+  const [studentId, setStudentId] = useState('')
+  const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
+  const [roomNo, setRoomNo] = useState('')
+  const [session, setSession] = useState<RentalSession | ''>('')
+  const [receiptImage, setReceiptImage] = useState<string | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [isComplete, setIsComplete] = useState(false)
+  const [completedOrderNum, setCompletedOrderNum] = useState(0)
   const [receiptSnapshot, setReceiptSnapshot] = useState<{
-    items: CartItem[];
-    subtotal: number;
-    tax: number;
-    total: number;
-    method: "cash" | "qr";
-    cashAmount: number;
-    change: number;
-    hasRentals: boolean;
-    returnDate: Date;
-    studentName: string;
-    studentId: string;
-    phone: string;
-    email: string;
-    roomNo: string;
-    session: string;
-    createdAt: string;
-  } | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
+    items: CartItem[]
+    subtotal: number
+    tax: number
+    total: number
+    method: 'cash' | 'qr'
+    cashAmount: number
+    change: number
+    hasRentals: boolean
+    returnDate: Date
+    studentName: string
+    studentId: string
+    phone: string
+    email: string
+    roomNo: string
+    session: string
+    createdAt: string
+  } | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
 
-  const cashAmount = parseFloat(cashInput) || 0;
-  const change = cashAmount - total;
-  const cashValid = cashAmount >= total;
+  const cashAmount = Number.parseFloat(cashInput) || 0
+  const change = cashAmount - total
+  const cashValid = cashAmount >= total
 
   const maxRentalDays = hasRentals
-    ? Math.max(...items.filter(i => i.product.type === "rental").map(i => i.rentalDays ?? 1))
-    : 0;
+    ? Math.max(...items.filter(i => i.product.type === 'rental').map(i => i.rentalDays ?? 1))
+    : 0
 
-  const returnDate = new Date();
-  returnDate.setDate(returnDate.getDate() + maxRentalDays);
+  const returnDate = new Date()
+  returnDate.setDate(returnDate.getDate() + maxRentalDays)
 
-  const rentalValid = !hasRentals || (studentName.trim().length > 0 && studentId.trim().length > 0 && roomNo.trim().length > 0 && session !== "");
-  const qrValid = method !== "qr" || receiptImage !== null;
-  const canComplete = (method === "qr" || cashValid) && rentalValid && qrValid;
+  const rentalValid = !hasRentals || (studentName.trim().length > 0 && studentId.trim().length > 0 && roomNo.trim().length > 0 && session !== '')
+  const qrValid = method !== 'qr' || receiptImage !== null
+  const canComplete = (method === 'qr' || cashValid) && rentalValid && qrValid
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const compressed = await compressImage(file);
-    setReceiptImage(compressed);
-  };
+    const file = e.target.files?.[0]
+    if (!file)
+      return
+    const compressed = await compressImage(file)
+    setReceiptImage(compressed)
+  }
 
   const handleComplete = () => {
-    setIsProcessing(true);
+    setIsProcessing(true)
     setTimeout(() => {
       // Snapshot all receipt data BEFORE onComplete clears the cart
       const snapshot = {
@@ -117,31 +117,32 @@ export function PaymentModal({ total, subtotal, tax, items, hasRentals, onComple
         roomNo: roomNo.trim(),
         session,
         createdAt: new Date().toISOString(),
-      };
+      }
       const rentalInfo: RentalInfo | undefined = hasRentals
         ? { studentName: snapshot.studentName, studentId: snapshot.studentId, phone: snapshot.phone, email: snapshot.email, roomNo: snapshot.roomNo, session: session as RentalSession, returnDate: snapshot.returnDate.toISOString() }
-        : undefined;
-      const orderNum = onComplete(method, method === "cash" ? cashAmount : undefined, rentalInfo, receiptImage ?? undefined);
-      setReceiptSnapshot(snapshot);
-      setCompletedOrderNum(orderNum);
-      setIsProcessing(false);
-      setIsComplete(true);
-    }, method === "qr" ? 800 : 400);
-  };
+        : undefined
+      const orderNum = onComplete(method, method === 'cash' ? cashAmount : undefined, rentalInfo, receiptImage ?? undefined)
+      setReceiptSnapshot(snapshot)
+      setCompletedOrderNum(orderNum)
+      setIsProcessing(false)
+      setIsComplete(true)
+    }, method === 'qr' ? 800 : 400)
+  }
 
   const handlePrint = () => {
-    if (!receiptSnapshot) return;
-    const s = receiptSnapshot;
+    if (!receiptSnapshot)
+      return
+    const s = receiptSnapshot
     printOrderReceipt({
-      id: "",
+      id: '',
       orderNumber: completedOrderNum,
       items: s.items,
       subtotal: s.subtotal,
       tax: s.tax,
       total: s.total,
       paymentMethod: s.method,
-      cashTendered: s.method === "cash" ? s.cashAmount : undefined,
-      change: s.method === "cash" ? s.change : undefined,
+      cashTendered: s.method === 'cash' ? s.cashAmount : undefined,
+      change: s.method === 'cash' ? s.change : undefined,
       createdAt: s.createdAt,
       studentName: s.hasRentals ? s.studentName : undefined,
       studentId: s.hasRentals ? s.studentId : undefined,
@@ -150,10 +151,10 @@ export function PaymentModal({ total, subtotal, tax, items, hasRentals, onComple
       roomNo: s.hasRentals ? s.roomNo : undefined,
       session: s.hasRentals && s.session ? s.session as RentalSession : undefined,
       returnDate: s.hasRentals ? s.returnDate.toISOString() : undefined,
-    });
-  };
+    })
+  }
 
-  const totalItems = items.reduce((s, i) => s + i.quantity, 0);
+  const totalItems = items.reduce((s, i) => s + i.quantity, 0)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -167,16 +168,21 @@ export function PaymentModal({ total, subtotal, tax, items, hasRentals, onComple
             </div>
             <div className="text-center">
               <h2 className="text-xl font-bold text-slate-800">
-                {hasRentals ? "Rental Confirmed!" : "Order Complete!"}
+                {hasRentals ? 'Rental Confirmed!' : 'Order Complete!'}
               </h2>
-              <p className="text-slate-500 text-sm mt-1">Order #{String(completedOrderNum).padStart(4, "0")}</p>
+              <p className="text-slate-500 text-sm mt-1">
+                Order #
+                {String(completedOrderNum).padStart(4, '0')}
+              </p>
               {hasRentals && (
                 <p className="text-violet-600 text-sm font-medium mt-1">
-                  Return by {formatDate(returnDate.toISOString())}
+                  Return by
+                  {' '}
+                  {formatDate(returnDate.toISOString())}
                 </p>
               )}
             </div>
-            {method === "cash" && change > 0 && (
+            {method === 'cash' && change > 0 && (
               <div className="rounded-xl bg-slate-50 px-6 py-3 text-center">
                 <p className="text-xs text-slate-500">Change due</p>
                 <p className="text-2xl font-bold text-slate-800">{formatCurrency(change)}</p>
@@ -195,7 +201,7 @@ export function PaymentModal({ total, subtotal, tax, items, hasRentals, onComple
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-slate-100 shrink-0">
           <h2 className="text-lg font-semibold text-slate-800">
-            {hasRentals ? "Confirm Rental" : "Collect Payment"}
+            {hasRentals ? 'Confirm Rental' : 'Collect Payment'}
           </h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
             <X size={20} />
@@ -208,7 +214,16 @@ export function PaymentModal({ total, subtotal, tax, items, hasRentals, onComple
             <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Total Due</p>
             <p className="text-4xl font-bold text-slate-800">{formatCurrency(total)}</p>
             <p className="text-xs text-slate-400 mt-1">
-              {totalItems} item{totalItems !== 1 ? "s" : ""} · Subtotal {formatCurrency(subtotal)} · Tax {formatCurrency(tax)}
+              {totalItems}
+              {' '}
+              item
+              {totalItems !== 1 ? 's' : ''}
+              {' '}
+              · Subtotal
+              {formatCurrency(subtotal)}
+              {' '}
+              · Tax
+              {formatCurrency(tax)}
             </p>
           </div>
 
@@ -258,10 +273,10 @@ export function PaymentModal({ total, subtotal, tax, items, hasRentals, onComple
                 />
                 <select
                   value={session}
-                  onChange={e => setSession(e.target.value as RentalSession | "")}
+                  onChange={e => setSession(e.target.value as RentalSession | '')}
                   className={cn(
-                    "w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent",
-                    session === "" ? "border-slate-200 text-slate-400" : "border-slate-200 text-slate-800",
+                    'w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent',
+                    session === '' ? 'border-slate-200 text-slate-400' : 'border-slate-200 text-slate-800',
                   )}
                 >
                   <option value="" disabled>Session *</option>
@@ -273,8 +288,16 @@ export function PaymentModal({ total, subtotal, tax, items, hasRentals, onComple
               <div className="flex items-center gap-2 rounded-lg bg-violet-50 border border-violet-100 px-4 py-3 text-sm">
                 <CalendarDays size={16} className="text-violet-500 shrink-0" />
                 <span className="text-slate-600">
-                  Return by <span className="font-semibold text-violet-700">{formatDate(returnDate.toISOString())}</span>
-                  {" "}({maxRentalDays} day{maxRentalDays !== 1 ? "s" : ""})
+                  Return by
+                  {' '}
+                  <span className="font-semibold text-violet-700">{formatDate(returnDate.toISOString())}</span>
+                  {' '}
+                  (
+                  {maxRentalDays}
+                  {' '}
+                  day
+                  {maxRentalDays !== 1 ? 's' : ''}
+                  )
                 </span>
               </div>
             </div>
@@ -284,37 +307,37 @@ export function PaymentModal({ total, subtotal, tax, items, hasRentals, onComple
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Payment Method</p>
             <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-              {(["cash", "qr"] as PaymentMethod[]).map(m => (
+              {(['cash', 'qr'] as PaymentMethod[]).map(m => (
                 <button
                   key={m}
-                  onClick={() => { setMethod(m); setReceiptImage(null); }}
+                  onClick={() => { setMethod(m); setReceiptImage(null) }}
                   className={cn(
-                    "flex-1 rounded-lg py-2 text-sm font-medium transition-all",
-                    method === m ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700",
+                    'flex-1 rounded-lg py-2 text-sm font-medium transition-all',
+                    method === m ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700',
                   )}
                 >
-                  {m === "cash" ? "💵 Cash" : "📱 QR Pay"}
+                  {m === 'cash' ? '💵 Cash' : '📱 QR Pay'}
                 </button>
               ))}
             </div>
           </div>
 
           {/* Cash section */}
-          {method === "cash" && (
+          {method === 'cash' && (
             <div className="space-y-3">
               <div className="grid grid-cols-3 gap-2">
-                {[total, 50, 100].filter((v, i, arr) => arr.indexOf(v) === i).map((amt) => (
+                {[total, 50, 100].filter((v, i, arr) => arr.indexOf(v) === i).map(amt => (
                   <button
                     key={amt}
                     onClick={() => setCashInput(amt.toFixed(2))}
                     className={cn(
-                      "rounded-lg border py-2 text-sm font-medium transition-colors",
+                      'rounded-lg border py-2 text-sm font-medium transition-colors',
                       cashInput === amt.toFixed(2)
-                        ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                        : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
+                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300',
                     )}
                   >
-                    {amt === total ? "Exact" : formatCurrency(amt)}
+                    {amt === total ? 'Exact' : formatCurrency(amt)}
                   </button>
                 ))}
               </div>
@@ -332,10 +355,11 @@ export function PaymentModal({ total, subtotal, tax, items, hasRentals, onComple
               </div>
               {cashInput && (
                 <div className={cn(
-                  "flex justify-between rounded-lg px-4 py-3 text-sm font-medium",
-                  cashValid ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600",
-                )}>
-                  <span>{cashValid ? "Change due" : "Amount insufficient"}</span>
+                  'flex justify-between rounded-lg px-4 py-3 text-sm font-medium',
+                  cashValid ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600',
+                )}
+                >
+                  <span>{cashValid ? 'Change due' : 'Amount insufficient'}</span>
                   {cashValid && <span className="font-bold">{formatCurrency(change)}</span>}
                 </div>
               )}
@@ -343,10 +367,12 @@ export function PaymentModal({ total, subtotal, tax, items, hasRentals, onComple
           )}
 
           {/* QR section */}
-          {method === "qr" && (
+          {method === 'qr' && (
             <div>
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
-                Payment Receipt <span className="text-red-400">*</span>
+                Payment Receipt
+                {' '}
+                <span className="text-red-400">*</span>
               </p>
 
               {receiptImage
@@ -358,7 +384,10 @@ export function PaymentModal({ total, subtotal, tax, items, hasRentals, onComple
                           <CheckCircle size={16} className="text-white" strokeWidth={2.5} />
                         </div>
                         <button
-                          onClick={() => { setReceiptImage(null); if (fileRef.current) fileRef.current.value = ""; }}
+                          onClick={() => {
+                            setReceiptImage(null); if (fileRef.current)
+                              fileRef.current.value = ''
+                          }}
                           className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm text-slate-500 hover:text-red-500 transition-colors"
                         >
                           <RotateCcw size={13} />
@@ -397,7 +426,12 @@ export function PaymentModal({ total, subtotal, tax, items, hasRentals, onComple
           <Button variant="outline" onClick={onClose} className="w-28 shrink-0">Cancel</Button>
           <Button className="flex-1" size="lg" disabled={!canComplete || isProcessing} onClick={handleComplete}>
             {isProcessing
-              ? <span className="flex items-center gap-2"><span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />Processing…</span>
+              ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    Processing…
+                  </span>
+                )
               : hasRentals
                 ? `Confirm · ${formatCurrency(total)}`
                 : `Complete Sale · ${formatCurrency(total)}`}
@@ -405,5 +439,5 @@ export function PaymentModal({ total, subtotal, tax, items, hasRentals, onComple
         </div>
       </div>
     </div>
-  );
+  )
 }

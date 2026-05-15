@@ -1,46 +1,46 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { Settings, UserPlus, Pencil, Trash2, X, Check } from "lucide-react";
-import { useState } from "react";
-import { useAuth } from "../context/auth-context";
-import type { Role, StoredUser } from "../context/auth-context";
+import type { Role, StoredUser } from '../context/auth-context'
+import { createFileRoute, Navigate } from '@tanstack/react-router'
+import { Check, Pencil, Settings, Trash2, UserPlus, X } from 'lucide-react'
+import { useState } from 'react'
+import { useAuth } from '../context/auth-context'
 
-export const Route = createFileRoute("/settings")({
+export const Route = createFileRoute('/settings')({
   component: SettingsPage,
-});
+})
 
 function RoleBadge({ role }: { role: Role }) {
   return (
     <span
       className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize"
-      style={role === "admin"
-        ? { backgroundColor: "#eef2ff", color: "#4338ca" }
-        : { backgroundColor: "#f1f5f9", color: "#475569" }}
+      style={role === 'admin'
+        ? { backgroundColor: '#eef2ff', color: '#4338ca' }
+        : { backgroundColor: '#f1f5f9', color: '#475569' }}
     >
       {role}
     </span>
-  );
+  )
 }
 
 interface AddUserModalProps {
-  onClose: () => void;
+  onClose: () => void
 }
 
 function AddUserModal({ onClose }: AddUserModalProps) {
-  const { addUser } = useAuth();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState<Role>("user");
-  const [error, setError] = useState<string | null>(null);
+  const { addUser } = useAuth()
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [role, setRole] = useState<Role>('user')
+  const [error, setError] = useState<string | null>(null)
 
   function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const err = addUser(username, password, role);
-    if (err) { setError(err); return; }
-    onClose();
+    e.preventDefault()
+    const err = addUser(username, password, role)
+    if (err) { setError(err); return }
+    onClose()
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: "rgba(0,0,0,0.4)" }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
       <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-base font-semibold text-slate-800">Add User</h2>
@@ -100,26 +100,29 @@ function AddUserModal({ onClose }: AddUserModalProps) {
         </form>
       </div>
     </div>
-  );
+  )
 }
 
 interface EditRowProps {
-  u: StoredUser;
-  isSelf: boolean;
-  onDone: () => void;
+  u: StoredUser
+  isSelf: boolean
+  onDone: () => void
 }
 
 function EditRow({ u, isSelf, onDone }: EditRowProps) {
-  const { updateUser } = useAuth();
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState<Role>(u.role);
+  const { updateUser } = useAuth()
+  const [password, setPassword] = useState('')
+  const [role, setRole] = useState<Role>(u.role)
 
   function handleSave() {
-    const data: { password?: string; role?: Role } = {};
-    if (password) data.password = password;
-    if (role !== u.role) data.role = role;
-    if (Object.keys(data).length) updateUser(u.username, data);
-    onDone();
+    const data: { password?: string, role?: Role } = {}
+    if (password)
+      data.password = password
+    if (role !== u.role)
+      data.role = role
+    if (Object.keys(data).length)
+      updateUser(u.username, data)
+    onDone()
   }
 
   return (
@@ -162,25 +165,26 @@ function EditRow({ u, isSelf, onDone }: EditRowProps) {
         </div>
       </td>
     </tr>
-  );
+  )
 }
 
 function SettingsPage() {
-  const { user, users, deleteUser } = useAuth();
+  const { user, users, deleteUser } = useAuth()
 
-  if (user?.role !== "admin") return <Navigate to="/" />;
+  if (user?.role !== 'admin')
+    return <Navigate to="/" />
 
-  const [showAdd, setShowAdd] = useState(false);
-  const [editingUser, setEditingUser] = useState<string | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [showAdd, setShowAdd] = useState(false)
+  const [editingUser, setEditingUser] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
   function handleDelete(username: string) {
     if (confirmDelete === username) {
-      deleteUser(username);
-      setConfirmDelete(null);
+      deleteUser(username)
+      setConfirmDelete(null)
     }
     else {
-      setConfirmDelete(username);
+      setConfirmDelete(username)
     }
   }
 
@@ -219,8 +223,8 @@ function SettingsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {users.map(u => {
-                const isSelf = u.username === user?.username;
+              {users.map((u) => {
+                const isSelf = u.username === user?.username
                 if (editingUser === u.username) {
                   return (
                     <EditRow
@@ -229,7 +233,7 @@ function SettingsPage() {
                       isSelf={isSelf}
                       onDone={() => setEditingUser(null)}
                     />
-                  );
+                  )
                 }
                 return (
                   <tr key={u.username} className="hover:bg-slate-50">
@@ -246,7 +250,7 @@ function SettingsPage() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => { setEditingUser(u.username); setConfirmDelete(null); }}
+                          onClick={() => { setEditingUser(u.username); setConfirmDelete(null) }}
                           className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-indigo-600 transition-colors"
                           title="Edit"
                         >
@@ -257,20 +261,20 @@ function SettingsPage() {
                             onClick={() => handleDelete(u.username)}
                             className={`flex h-7 items-center justify-center rounded-lg border px-2 text-xs font-medium transition-colors ${
                               confirmDelete === u.username
-                                ? "border-red-300 bg-red-50 text-red-600 hover:bg-red-100"
-                                : "border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-red-500"
+                                ? 'border-red-300 bg-red-50 text-red-600 hover:bg-red-100'
+                                : 'border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-red-500'
                             }`}
                             title="Delete"
                           >
                             {confirmDelete === u.username
-                              ? "Confirm?"
+                              ? 'Confirm?'
                               : <Trash2 size={13} />}
                           </button>
                         )}
                       </div>
                     </td>
                   </tr>
-                );
+                )
               })}
             </tbody>
           </table>
@@ -279,5 +283,5 @@ function SettingsPage() {
 
       {showAdd && <AddUserModal onClose={() => setShowAdd(false)} />}
     </div>
-  );
+  )
 }

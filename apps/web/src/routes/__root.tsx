@@ -1,17 +1,18 @@
-import { Outlet, createRootRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Menu, Store } from "lucide-react";
-import { Sidebar } from "../components/layout/sidebar";
-import { ProductsProvider } from "../context/products-context";
-import { AuthProvider, useAuth } from "../context/auth-context";
-import { LoginScreen } from "../components/layout/login-screen";
+import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { Menu, Store } from 'lucide-react'
+import { useState } from 'react'
+import { LoginScreen } from '../components/layout/login-screen'
+import { Sidebar } from '../components/layout/sidebar'
+import { AuthProvider, useAuth } from '../context/auth-context'
+import { ProductsProvider } from '../context/products-context'
 
 function RootLayout() {
-  const { user } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { user } = useAuth()
+  const [collapsed, setCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
-  if (!user) return <LoginScreen />;
+  if (!user)
+    return <LoginScreen />
 
   return (
     <ProductsProvider>
@@ -46,7 +47,7 @@ function RootLayout() {
         </div>
       </div>
     </ProductsProvider>
-  );
+  )
 }
 
 function Root() {
@@ -54,7 +55,7 @@ function Root() {
     <AuthProvider>
       <RootLayout />
     </AuthProvider>
-  );
+  )
 }
 
-export const Route = createRootRoute({ component: Root });
+export const Route = createRootRoute({ component: Root })

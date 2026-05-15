@@ -1,19 +1,20 @@
-import { useState } from "react";
-import { Store } from "lucide-react";
-import { useAuth } from "../../context/auth-context";
-import { Button } from "../ui/button";
+import { Store } from 'lucide-react'
+import { useState } from 'react'
+import { useAuth } from '../../context/auth-context'
+import { Button } from '../ui/button'
 
 export function LoginScreen() {
-  const { login } = useAuth();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  const { login } = useAuth()
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const ok = login(username.trim(), password);
-    if (!ok) setError(true);
-  };
+    e.preventDefault()
+    const ok = login(username.trim(), password)
+    if (!ok)
+      setError(true)
+  }
 
   return (
     <div className="flex h-screen items-center justify-center bg-slate-900">
@@ -34,7 +35,7 @@ export function LoginScreen() {
             <input
               type="text"
               value={username}
-              onChange={e => { setUsername(e.target.value); setError(false); }}
+              onChange={(e) => { setUsername(e.target.value); setError(false) }}
               placeholder="Enter username"
               autoFocus
               className="w-full rounded-lg bg-slate-700 border border-slate-600 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -47,7 +48,7 @@ export function LoginScreen() {
             <input
               type="password"
               value={password}
-              onChange={e => { setPassword(e.target.value); setError(false); }}
+              onChange={(e) => { setPassword(e.target.value); setError(false) }}
               placeholder="Enter password"
               className="w-full rounded-lg bg-slate-700 border border-slate-600 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
@@ -67,5 +68,5 @@ export function LoginScreen() {
         </p>
       </div>
     </div>
-  );
+  )
 }

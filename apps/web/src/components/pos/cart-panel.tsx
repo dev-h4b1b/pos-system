@@ -1,22 +1,22 @@
-import { CalendarDays, Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
-import { formatCurrency } from "../../lib/format";
-import { cn } from "../../lib/utils";
-import { Button } from "../ui/button";
-import type { CartItem } from "../../types";
+import type { CartItem } from '../../types'
+import { CalendarDays, Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react'
+import { formatCurrency } from '../../lib/format'
+import { cn } from '../../lib/utils'
+import { Button } from '../ui/button'
 
 interface CartPanelProps {
-  items: CartItem[];
-  subtotal: number;
-  tax: number;
-  total: number;
-  itemCount: number;
-  hasRentals: boolean;
-  onUpdateQty: (id: string, qty: number) => void;
-  onSetRentalDays: (id: string, days: number) => void;
-  onRemove: (id: string) => void;
-  onClear: () => void;
-  onCharge: () => void;
-  onClose?: () => void; // mobile bottom sheet close
+  items: CartItem[]
+  subtotal: number
+  tax: number
+  total: number
+  itemCount: number
+  hasRentals: boolean
+  onUpdateQty: (id: string, qty: number) => void
+  onSetRentalDays: (id: string, days: number) => void
+  onRemove: (id: string) => void
+  onClear: () => void
+  onCharge: () => void
+  onClose?: () => void // mobile bottom sheet close
 }
 
 export function CartPanel({ items, subtotal, tax, total, itemCount, hasRentals, onUpdateQty, onSetRentalDays, onRemove, onClear, onCharge, onClose }: CartPanelProps) {
@@ -33,7 +33,9 @@ export function CartPanel({ items, subtotal, tax, total, itemCount, hasRentals, 
           )}
           {hasRentals && (
             <span className="flex items-center gap-1 rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-700">
-              <CalendarDays size={11} /> Rental
+              <CalendarDays size={11} />
+              {' '}
+              Rental
             </span>
           )}
         </div>
@@ -43,7 +45,9 @@ export function CartPanel({ items, subtotal, tax, total, itemCount, hasRentals, 
               onClick={onClear}
               className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500 transition-colors"
             >
-              <Trash2 size={13} /> Clear
+              <Trash2 size={13} />
+              {' '}
+              Clear
             </button>
           )}
           {onClose && (
@@ -80,13 +84,15 @@ export function CartPanel({ items, subtotal, tax, total, itemCount, hasRentals, 
       </div>
 
       {/* Footer */}
-      <div className={cn("border-t border-slate-100 px-5 py-4 space-y-3 shrink-0", items.length === 0 && "opacity-50")}>
+      <div className={cn('border-t border-slate-100 px-5 py-4 space-y-3 shrink-0', items.length === 0 && 'opacity-50')}>
         <div className="space-y-1.5">
           <div className="flex justify-between text-sm text-slate-500">
-            <span>Subtotal</span><span>{formatCurrency(subtotal)}</span>
+            <span>Subtotal</span>
+            <span>{formatCurrency(subtotal)}</span>
           </div>
           <div className="flex justify-between text-sm text-slate-500">
-            <span>Tax (8%)</span><span>{formatCurrency(tax)}</span>
+            <span>Tax (8%)</span>
+            <span>{formatCurrency(tax)}</span>
           </div>
           <div className="flex justify-between font-semibold text-slate-800 pt-1 border-t border-slate-100">
             <span>Total</span>
@@ -94,21 +100,24 @@ export function CartPanel({ items, subtotal, tax, total, itemCount, hasRentals, 
           </div>
         </div>
         <Button size="lg" className="w-full" disabled={items.length === 0} onClick={onCharge}>
-          {hasRentals ? "Confirm Rental" : "Charge"} · {formatCurrency(total)}
+          {hasRentals ? 'Confirm Rental' : 'Charge'}
+          {' '}
+          ·
+          {formatCurrency(total)}
         </Button>
       </div>
     </div>
-  );
+  )
 }
 
 interface CartItemRowProps {
-  item: CartItem;
-  onUpdateQty: (id: string, qty: number) => void;
-  onSetRentalDays: (id: string, days: number) => void;
-  onRemove: (id: string) => void;
+  item: CartItem
+  onUpdateQty: (id: string, qty: number) => void
+  onSetRentalDays: (id: string, days: number) => void
+  onRemove: (id: string) => void
 }
 
-function QtyButton({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+function QtyButton({ onClick, children }: { onClick: () => void, children: React.ReactNode }) {
   return (
     <button
       onClick={onClick}
@@ -116,15 +125,15 @@ function QtyButton({ onClick, children }: { onClick: () => void; children: React
     >
       {children}
     </button>
-  );
+  )
 }
 
 function CartItemRow({ item, onUpdateQty, onSetRentalDays, onRemove }: CartItemRowProps) {
-  const { product, quantity, rentalDays, selectedUnits } = item;
-  const isRental = product.type === "rental";
-  const hasUnits = selectedUnits && selectedUnits.length > 0;
-  const days = rentalDays ?? 1;
-  const lineTotal = product.price * quantity * (isRental ? days : 1);
+  const { product, quantity, rentalDays, selectedUnits } = item
+  const isRental = product.type === 'rental'
+  const hasUnits = selectedUnits && selectedUnits.length > 0
+  const days = rentalDays ?? 1
+  const lineTotal = product.price * quantity * (isRental ? days : 1)
 
   return (
     <li className="py-3 space-y-2">
@@ -156,7 +165,7 @@ function CartItemRow({ item, onUpdateQty, onSetRentalDays, onRemove }: CartItemR
         </div>
       )}
 
-      <div className={cn("flex items-center gap-4 pl-8", isRental ? "justify-between" : "justify-end")}>
+      <div className={cn('flex items-center gap-4 pl-8', isRental ? 'justify-between' : 'justify-end')}>
         {isRental && (
           <div className="flex items-center gap-1.5">
             <CalendarDays size={12} className="text-violet-400" />
@@ -175,9 +184,14 @@ function CartItemRow({ item, onUpdateQty, onSetRentalDays, onRemove }: CartItemR
           </div>
         )}
         {hasUnits && (
-          <span className="text-xs text-slate-400">{quantity} unit{quantity !== 1 ? "s" : ""}</span>
+          <span className="text-xs text-slate-400">
+            {quantity}
+            {' '}
+            unit
+            {quantity !== 1 ? 's' : ''}
+          </span>
         )}
       </div>
     </li>
-  );
+  )
 }

@@ -1,56 +1,57 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Search, ShoppingCart, X } from "lucide-react";
-import { useAuth } from "../context/auth-context";
-import { useProducts } from "../context/products-context";
-import { useCart } from "../hooks/use-cart";
-import { useOrders } from "../hooks/use-orders";
-import { CategoryTabs } from "../components/pos/category-tabs";
-import type { FilterCategory } from "../components/pos/category-tabs";
-import { ProductCard } from "../components/pos/product-card";
-import { CartPanel } from "../components/pos/cart-panel";
-import { PaymentModal } from "../components/pos/payment-modal";
-import { Button } from "../components/ui/button";
-import { formatCurrency } from "../lib/format";
-import { cn } from "../lib/utils";
-import type { Product, RentalInfo, SelectedUnit } from "../types";
+import type { FilterCategory } from '../components/pos/category-tabs'
+import type { Product, RentalInfo, SelectedUnit } from '../types'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Search, ShoppingCart, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { CartPanel } from '../components/pos/cart-panel'
+import { CategoryTabs } from '../components/pos/category-tabs'
+import { PaymentModal } from '../components/pos/payment-modal'
+import { ProductCard } from '../components/pos/product-card'
+import { Button } from '../components/ui/button'
+import { useAuth } from '../context/auth-context'
+import { useProducts } from '../context/products-context'
+import { useCart } from '../hooks/use-cart'
+import { useOrders } from '../hooks/use-orders'
+import { formatCurrency } from '../lib/format'
+import { cn } from '../lib/utils'
 
-export const Route = createFileRoute("/")({ component: PosTerminal });
+export const Route = createFileRoute('/')({ component: PosTerminal })
 
-type TypeFilter = "all" | "sale" | "rental";
+type TypeFilter = 'all' | 'sale' | 'rental'
 
 function PosTerminal() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth()
+  const navigate = useNavigate()
 
   useEffect(() => {
-    if (user?.role === "admin") navigate({ to: "/orders" });
-  }, [user, navigate]);
+    if (user?.role === 'admin')
+      navigate({ to: '/orders' })
+  }, [user, navigate])
 
-  const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
-  const [category, setCategory] = useState<FilterCategory>("all");
-  const [showPayment, setShowPayment] = useState(false);
-  const [cartSheetOpen, setCartSheetOpen] = useState(false);
-  const [unitPickerProduct, setUnitPickerProduct] = useState<Product | null>(null);
+  const [search, setSearch] = useState('')
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
+  const [category, setCategory] = useState<FilterCategory>('all')
+  const [showPayment, setShowPayment] = useState(false)
+  const [cartSheetOpen, setCartSheetOpen] = useState(false)
+  const [unitPickerProduct, setUnitPickerProduct] = useState<Product | null>(null)
 
-  const { products, deductStock } = useProducts();
-  const { items, addItem, removeItem, updateQty, setRentalDays, clear, subtotal, tax, total, itemCount, hasRentals } = useCart();
-  const { addOrder, orders } = useOrders();
+  const { products, deductStock } = useProducts()
+  const { items, addItem, removeItem, updateQty, setRentalDays, clear, subtotal, tax, total, itemCount, hasRentals } = useCart()
+  const { addOrder, orders } = useOrders()
 
   const handleTypeFilter = (type: TypeFilter) => {
-    setTypeFilter(type);
-    setCategory("all");
-  };
+    setTypeFilter(type)
+    setCategory('all')
+  }
 
   const filtered = products.filter(p =>
-    (typeFilter === "all" || p.type === typeFilter)
-    && (category === "all" || p.category === category)
+    (typeFilter === 'all' || p.type === typeFilter)
+    && (category === 'all' || p.category === category)
     && p.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  )
 
-  const handlePaymentComplete = (method: "cash" | "qr", cashTendered?: number, rentalInfo?: RentalInfo, receiptImage?: string): number => {
-    const nextOrderNumber = orders.length + 1;
+  const handlePaymentComplete = (method: 'cash' | 'qr', cashTendered?: number, rentalInfo?: RentalInfo, receiptImage?: string): number => {
+    const nextOrderNumber = orders.length + 1
     addOrder({
       items,
       subtotal,
@@ -67,13 +68,13 @@ function PosTerminal() {
       roomNo: rentalInfo?.roomNo,
       session: rentalInfo?.session,
       returnDate: rentalInfo?.returnDate,
-      rentalStatus: hasRentals ? "active" : undefined,
-    });
-    deductStock(items);
-    clear();
-    setCartSheetOpen(false);
-    return nextOrderNumber;
-  };
+      rentalStatus: hasRentals ? 'active' : undefined,
+    })
+    deductStock(items)
+    clear()
+    setCartSheetOpen(false)
+    return nextOrderNumber
+  }
 
   const cartProps = {
     items,
@@ -87,7 +88,7 @@ function PosTerminal() {
     onRemove: removeItem,
     onClear: clear,
     onCharge: () => setShowPayment(true),
-  };
+  }
 
   return (
     <div className="flex h-full relative">
@@ -108,25 +109,29 @@ function PosTerminal() {
 
           {/* Type filter */}
           <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
-            {(["all", "sale", "rental"] as TypeFilter[]).map(t => (
+            {(['all', 'sale', 'rental'] as TypeFilter[]).map(t => (
               <button
                 key={t}
                 onClick={() => handleTypeFilter(t)}
                 className={cn(
-                  "rounded-lg px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition-colors whitespace-nowrap",
+                  'rounded-lg px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition-colors whitespace-nowrap',
                   typeFilter === t
-                    ? t === "rental"
-                      ? "bg-violet-600 text-white"
-                      : t === "sale"
-                        ? "bg-blue-600 text-white"
-                        : "bg-slate-800 text-white"
-                    : "bg-slate-100 text-slate-500 hover:bg-slate-200",
+                    ? t === 'rental'
+                      ? 'bg-violet-600 text-white'
+                      : t === 'sale'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-800 text-white'
+                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200',
                 )}
               >
-                {t === "all" ? "All Items" : t === "sale" ? "For Sale" : "For Rent"}
+                {t === 'all' ? 'All Items' : t === 'sale' ? 'For Sale' : 'For Rent'}
               </button>
             ))}
-            <span className="text-xs text-slate-400 ml-auto whitespace-nowrap">{filtered.length} items</span>
+            <span className="text-xs text-slate-400 ml-auto whitespace-nowrap">
+              {filtered.length}
+              {' '}
+              items
+            </span>
           </div>
 
           <CategoryTabs value={category} typeFilter={typeFilter} onChange={setCategory} />
@@ -149,11 +154,11 @@ function PosTerminal() {
                       product={product}
                       cartQty={items.find(i => i.product.id === product.id)?.quantity ?? 0}
                       onAdd={() => {
-                        if (product.type === "rental" && product.units && product.units.length > 0) {
-                          setUnitPickerProduct(product);
+                        if (product.type === 'rental' && product.units && product.units.length > 0) {
+                          setUnitPickerProduct(product)
                         }
                         else {
-                          addItem(product);
+                          addItem(product)
                         }
                       }}
                     />
@@ -173,16 +178,16 @@ function PosTerminal() {
         <button
           onClick={() => setCartSheetOpen(true)}
           className={cn(
-            "w-full flex items-center justify-between rounded-2xl px-5 py-4 shadow-xl transition-all",
+            'w-full flex items-center justify-between rounded-2xl px-5 py-4 shadow-xl transition-all',
             itemCount > 0
-              ? "bg-indigo-600 text-white"
-              : "bg-slate-800 text-slate-400 cursor-default",
+              ? 'bg-indigo-600 text-white'
+              : 'bg-slate-800 text-slate-400 cursor-default',
           )}
         >
           <div className="flex items-center gap-3">
             <ShoppingCart size={20} />
             <span className="font-semibold text-sm">
-              {itemCount > 0 ? `${itemCount} item${itemCount !== 1 ? "s" : ""}` : "Cart is empty"}
+              {itemCount > 0 ? `${itemCount} item${itemCount !== 1 ? 's' : ''}` : 'Cart is empty'}
             </span>
           </div>
           {itemCount > 0 && (
@@ -196,10 +201,10 @@ function PosTerminal() {
         <div className="fixed inset-0 z-40 md:hidden">
           <div
             className="absolute inset-0"
-            style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
+            style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
             onClick={() => setCartSheetOpen(false)}
           />
-          <div className="absolute bottom-0 left-0 right-0 rounded-t-2xl overflow-hidden flex flex-col bg-white" style={{ height: "78vh" }}>
+          <div className="absolute bottom-0 left-0 right-0 rounded-t-2xl overflow-hidden flex flex-col bg-white" style={{ height: '78vh' }}>
             <div className="flex-none w-12 h-1.5 rounded-full bg-slate-200 mx-auto mt-3 mb-1" />
             <CartPanel {...cartProps} onClose={() => setCartSheetOpen(false)} />
           </div>
@@ -211,7 +216,7 @@ function PosTerminal() {
         <UnitPickerModal
           product={unitPickerProduct}
           currentSelection={items.find(i => i.product.id === unitPickerProduct.id)?.selectedUnits ?? []}
-          onConfirm={(selectedUnits) => { addItem(unitPickerProduct, selectedUnits); setUnitPickerProduct(null); }}
+          onConfirm={(selectedUnits) => { addItem(unitPickerProduct, selectedUnits); setUnitPickerProduct(null) }}
           onClose={() => setUnitPickerProduct(null)}
         />
       )}
@@ -229,34 +234,34 @@ function PosTerminal() {
         />
       )}
     </div>
-  );
+  )
 }
 
 interface UnitPickerModalProps {
-  product: Product;
-  currentSelection: SelectedUnit[];
-  onConfirm: (selected: SelectedUnit[]) => void;
-  onClose: () => void;
+  product: Product
+  currentSelection: SelectedUnit[]
+  onConfirm: (selected: SelectedUnit[]) => void
+  onClose: () => void
 }
 
 function UnitPickerModal({ product, currentSelection, onConfirm, onClose }: UnitPickerModalProps) {
-  const [selected, setSelected] = useState<Set<string>>(new Set(currentSelection.map(u => u.id)));
-  const units = product.units ?? [];
+  const [selected, setSelected] = useState<Set<string>>(new Set(currentSelection.map(u => u.id)))
+  const units = product.units ?? []
 
   const toggle = (id: string) => {
-    setSelected(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
+    setSelected((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
 
   const handleConfirm = () => {
     const selectedUnits: SelectedUnit[] = units
       .filter(u => selected.has(u.id))
-      .map(({ id, label, serialNo }) => ({ id, label, serialNo }));
-    onConfirm(selectedUnits);
-  };
+      .map(({ id, label, serialNo }) => ({ id, label, serialNo }))
+    onConfirm(selectedUnits)
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -264,7 +269,11 @@ function UnitPickerModal({ product, currentSelection, onConfirm, onClose }: Unit
         <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-slate-100 shrink-0">
           <div>
             <h2 className="text-base font-semibold text-slate-800">Select Unit</h2>
-            <p className="text-xs text-slate-400 mt-0.5">{product.emoji} {product.name}</p>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {product.emoji}
+              {' '}
+              {product.name}
+            </p>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
             <X size={20} />
@@ -272,9 +281,9 @@ function UnitPickerModal({ product, currentSelection, onConfirm, onClose }: Unit
         </div>
 
         <div className="overflow-y-auto flex-1 px-4 py-3 space-y-2">
-          {units.map(unit => {
-            const isRented = unit.status === "rented";
-            const isSelected = selected.has(unit.id);
+          {units.map((unit) => {
+            const isRented = unit.status === 'rented'
+            const isSelected = selected.has(unit.id)
             return (
               <button
                 key={unit.id}
@@ -282,18 +291,19 @@ function UnitPickerModal({ product, currentSelection, onConfirm, onClose }: Unit
                 disabled={isRented}
                 onClick={() => toggle(unit.id)}
                 className={cn(
-                  "w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all",
+                  'w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all',
                   isRented
-                    ? "border-slate-100 bg-slate-50 opacity-50 cursor-not-allowed"
+                    ? 'border-slate-100 bg-slate-50 opacity-50 cursor-not-allowed'
                     : isSelected
-                      ? "border-violet-400 bg-violet-50"
-                      : "border-slate-200 bg-white hover:border-violet-200 hover:bg-violet-50/30",
+                      ? 'border-violet-400 bg-violet-50'
+                      : 'border-slate-200 bg-white hover:border-violet-200 hover:bg-violet-50/30',
                 )}
               >
                 <div className={cn(
-                  "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-                  isSelected ? "border-violet-600 bg-violet-600" : "border-slate-300",
-                )}>
+                  'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors',
+                  isSelected ? 'border-violet-600 bg-violet-600' : 'border-slate-300',
+                )}
+                >
                   {isSelected && <div className="h-2 w-2 rounded-full bg-white" />}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -301,13 +311,14 @@ function UnitPickerModal({ product, currentSelection, onConfirm, onClose }: Unit
                   {unit.serialNo && <p className="text-xs font-mono text-slate-400">{unit.serialNo}</p>}
                 </div>
                 <span className={cn(
-                  "text-xs rounded-full px-2 py-0.5 font-medium shrink-0",
-                  isRented ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700",
-                )}>
-                  {isRented ? "In Use" : "Available"}
+                  'text-xs rounded-full px-2 py-0.5 font-medium shrink-0',
+                  isRented ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700',
+                )}
+                >
+                  {isRented ? 'In Use' : 'Available'}
                 </span>
               </button>
-            );
+            )
           })}
         </div>
 
@@ -318,10 +329,12 @@ function UnitPickerModal({ product, currentSelection, onConfirm, onClose }: Unit
             disabled={selected.size === 0}
             onClick={handleConfirm}
           >
-            Add {selected.size > 0 ? `${selected.size} unit${selected.size !== 1 ? "s" : ""}` : "to Cart"}
+            Add
+            {' '}
+            {selected.size > 0 ? `${selected.size} unit${selected.size !== 1 ? 's' : ''}` : 'to Cart'}
           </Button>
         </div>
       </div>
     </div>
-  );
+  )
 }
