@@ -1,15 +1,15 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "pos-system",
-  "account_id": "REPLACE_ACCOUNT_ID",
+  "account_id": "6a8943a8562b972e1ff90bf3e31ff707",
   "main": "apps/api/src/app.ts",
   "compatibility_date": "2025-04-01",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
-  "routes": [{ "pattern": "REPLACE_DOMAIN", "custom_domain": true }],
+  "routes": [{ "pattern": "pos.kesatria.my", "custom_domain": true }],
   "assets": { "directory": "apps/web/dist", "binding": "ASSETS" },
   "vars": {
-    "APP_URL": "https://REPLACE_DOMAIN",
+    "APP_URL": "https://pos.kesatria.my",
     "LOG_LEVEL": "info",
     "NODE_ENV": "production"
   },
